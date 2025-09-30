@@ -1,0 +1,27 @@
+# Fichiers sensibles
+config/db.php
+
+# Systèmes
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Sauvegardes / temporaires
+*.bak
+*.tmp
+*.swp
+
+# IDE / éditeurs
+.vscode/
+.idea/
+*.iml
+
+# Cache PHP éventuel
+vendor/
+composer.lock
+
+# Node (si tu ajoutes plus tard un tooling front)
+node_modules/
+dist/
