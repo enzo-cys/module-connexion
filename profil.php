@@ -1,14 +1,20 @@
 <?php
 require_once __DIR__.'/config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-if (!isset($_SESSION['user'])) {
-    header("Location: connexion.php");
-    exit;
-}
 
 $success = null;
 $errors  = [];
+
+// Inclure le header (qui démarre la session)
+require_once __DIR__.'/includes/header.php';
+
+// Vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['user'])) {
+    echo '<script>window.location.href = "connexion.php";</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=connexion.php"></noscript>';
+    echo '<p>Redirection en cours... <a href="connexion.php">Cliquez ici si la redirection ne fonctionne pas</a></p>';
+    require_once __DIR__.'/includes/footer.php';
+    exit;
+}
 
 // Récupération utilisateur actuel
 $stmt = $pdo->prepare("SELECT * FROM utilisateurs WHERE id = ?");
@@ -16,7 +22,10 @@ $stmt->execute([$_SESSION['user']['id']]);
 $current = $stmt->fetch();
 if (!$current) {
     session_destroy();
-    header("Location: connexion.php");
+    echo '<script>window.location.href = "connexion.php";</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=connexion.php"></noscript>';
+    echo '<p>Session invalide. Redirection en cours... <a href="connexion.php">Cliquez ici si la redirection ne fonctionne pas</a></p>';
+    require_once __DIR__.'/includes/footer.php';
     exit;
 }
 

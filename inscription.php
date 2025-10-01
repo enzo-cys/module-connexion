@@ -1,14 +1,15 @@
 <?php
 require_once __DIR__.'/config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-if (isset($_SESSION['user'])) {
-    header("Location: index.php");
-    exit;
-}
 
 $errors = [];
+$redirect = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Démarrer la session si nécessaire pour le traitement POST
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     $login  = trim($_POST['login'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
     $nom    = trim($_POST['nom'] ?? '');
@@ -41,12 +42,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "INSERT INTO utilisateurs (login, prenom, nom, password) VALUES (?, ?, ?, ?)"
         );
         $stmt->execute([$login, $prenom, $nom, $hash]);
-        header("Location: connexion.php?inscription=ok");
-        exit;
+        $redirect = true;
     }
 }
 
+// Inclure le header (qui démarre la session)
 require_once __DIR__.'/includes/header.php';
+
+// Vérifier si l'utilisateur est déjà connecté ou s'il faut rediriger après inscription
+if (isset($_SESSION['user'])) {
+    echo '<script>window.location.href = "index.php";</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=index.php"></noscript>';
+    echo '<p>Redirection en cours... <a href="index.php">Cliquez ici si la redirection ne fonctionne pas</a></p>';
+    require_once __DIR__.'/includes/footer.php';
+    exit;
+}
+
+if ($redirect) {
+    echo '<script>window.location.href = "connexion.php?inscription=ok";</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=connexion.php?inscription=ok"></noscript>';
+    echo '<p>Inscription réussie ! Redirection en cours... <a href="connexion.php?inscription=ok">Cliquez ici si la redirection ne fonctionne pas</a></p>';
+    require_once __DIR__.'/includes/footer.php';
+    exit;
+}
 ?>
 <h1>Inscription</h1>
 

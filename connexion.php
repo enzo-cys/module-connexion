@@ -1,15 +1,16 @@
 <?php
 require_once __DIR__.'/config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-if (isset($_SESSION['user'])) {
-    header("Location: index.php");
-    exit;
-}
 
 $error = null;
+$redirect = false;
 
+// Traitement du formulaire de connexion
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Démarrer la session si nécessaire pour le traitement POST
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
     $login = trim($_POST['login'] ?? '');
     $pass  = $_POST['password'] ?? '';
 
@@ -25,14 +26,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'prenom' => $user['prenom'],
             'nom'    => $user['nom']
         ];
-        header("Location: index.php");
-        exit;
+        $redirect = true;
     } else {
         $error = "Identifiants invalides.";
     }
 }
 
+// Inclure le header (qui démarre la session)
 require_once __DIR__.'/includes/header.php';
+
+// Vérifier si l'utilisateur est déjà connecté ou s'il faut rediriger
+if (isset($_SESSION['user']) || $redirect) {
+    echo '<script>window.location.href = "index.php";</script>';
+    echo '<noscript><meta http-equiv="refresh" content="0;url=index.php"></noscript>';
+    echo '<p>Redirection en cours... <a href="index.php">Cliquez ici si la redirection ne fonctionne pas</a></p>';
+    require_once __DIR__.'/includes/footer.php';
+    exit;
+}
 ?>
 <h1>Connexion</h1>
 

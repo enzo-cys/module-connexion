@@ -1,17 +1,21 @@
 <?php
 require_once __DIR__.'/config/db.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Inclure le header (qui démarre la session)
+require_once __DIR__.'/includes/header.php';
+
+// Vérification des droits d'accès
 if (!isset($_SESSION['user']) || $_SESSION['user']['login'] !== 'admin') {
-    header("HTTP/1.1 403 Forbidden");
-    echo "<p>Accès refusé. <a href='index.php'>Retour</a></p>";
+    http_response_code(403);
+    echo "<h1>Accès refusé</h1>";
+    echo "<p>Vous devez être administrateur pour accéder à cette page.</p>";
+    echo "<p><a href='index.php'>Retour à l'accueil</a></p>";
+    require_once __DIR__.'/includes/footer.php';
     exit;
 }
 
 $stmt = $pdo->query("SELECT id, login, prenom, nom FROM utilisateurs ORDER BY id ASC");
 $users = $stmt->fetchAll();
-
-require_once __DIR__.'/includes/header.php';
 ?>
 <h1>Administration</h1>
 <p>Liste complète des utilisateurs inscrits.</p>
